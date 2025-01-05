@@ -1,6 +1,7 @@
 const userModel=require('../Models/user.model');
 const userService=require('../services/user.services');
 const {validationResult}=require('express-validator')
+const blackListSchema=require('../Models/blacklistToken.model');
 
 module.exports.registerUser= async(req,res,next)=>{
    const errors=validationResult(req);
@@ -43,11 +44,22 @@ module.exports.loginUser= async(req,res,next)=>{
     if(!isMatch){
       return res.status(400).json('Incorrect password');
     }
-  
-    res.status(200).json({token:user.generateAuthToken(),user});
+    const token=user.generateAuthToken();
+    res.cookie('token',token);
+    res.status(200).json({token,user});
   
   }catch(err){
     res.status(500).json('Internal server error');
   }
 }
 
+module.exports.profileUser= async(req,res,next)=>{
+   res.status(200).json(req.user);
+}
+
+module.exports.logoutUser=async(req,res,next)=>{
+  res.clearCookie('token');
+  const token=req.cookies.token || req.headers.authorization?.split(' ')[1];
+  await blackListSchema.create({token});
+  res.status(200).json('logout successfully');
+}

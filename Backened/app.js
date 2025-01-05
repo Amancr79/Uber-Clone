@@ -5,9 +5,11 @@ const express=require('express');
 const app=express();
 const userRoutes=require('./routes/user.routes');
 const connectToDb=require('./db/db');
+const cookieParser=require('cookie-parser');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
+app.use(cookieParser());
 //this is for accepting request from all domain otherwise if we put domain inside the cors it will support only that domain and block other
 connectToDb();
 
