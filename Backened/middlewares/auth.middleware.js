@@ -6,7 +6,6 @@ const blackListSchema=require('../Models/blacklistToken.model');
 
 module.exports.authUser=async(req,res,next)=>{
     const token=req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];
-    console.log('authhhhhh');
     if(!token){
         res.status(401).json({message:'unauthorized'});
     }
