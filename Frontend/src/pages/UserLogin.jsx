@@ -1,18 +1,30 @@
-import { useState} from "react"
+import { useState,useContext} from "react"
 import { Link } from "react-router-dom"
+import { UserDataContext } from "../context/UserContext";
+import {useNavigate} from "react-router-dom"
+import axios from 'axios'
+
 function UserLogin() {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
-  const [userData,setUserData]=useState({});
+  const navigate = useNavigate();
+  const {user,setUser}=useContext(UserDataContext);
 
-    const handleSubmit=(e)=>{
+  // const [userData,setUserData]=useState({});
+
+    const handleSubmit=async(e)=>{
         e.preventDefault();
-        console.log(userData);
-        setUserData({email:email,password:password});
+        const userData={email:email,password:password};
+        const response=await axios.post('http://localhost:3000/users/login',userData);
+        if(response.status===200){
+          const data=response.data;
+          setUser(data.user);
+          localStorage.setItem('token',data.token);
+          navigate('/logout');
+        }
         setEmail('');
         setPassword('');
     }
-    
   return (
     <div className="ml-5 mr-5 flex flex-col justify-between h-screen">
         <div>

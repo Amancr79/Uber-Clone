@@ -1,23 +1,41 @@
-import { useState} from "react"
-import { Link } from "react-router-dom"
+/* eslint-disable no-unused-vars */
+import { useState,useContext} from "react"
+import { Link ,useNavigate} from "react-router-dom"
+import axios from 'axios'
+import {UserDataContext} from "../context/UserContext";
 
 function UserSignup() {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [firstName,setFirstName]=useState('');
   const [lastName,setLastName]=useState('');
-  const [userData,setUserData]=useState({});
+  const {user,setUser}=useContext(UserDataContext);
+  const navigate=useNavigate();
 
-    const handleSubmit=(e)=>{
+    const handleSubmit=async(e)=>{
         e.preventDefault();
-        console.log(userData)
-        setUserData({
+        const newUser={
             fullname:{
-                firstName:firstName,
-                lastName:lastName,
+                firstname:firstName,
+                lastname:lastName,
             },
             email:email,
-            password:password});
+            password:password
+        };
+        try {
+            const response=await axios.post('http://localhost:3000/users/register',newUser);
+            console.log("user");
+            if(response.status===201){
+                const data=response.data
+                setUser(data.user);
+                localStorage.setItem('token',data.token);
+                console.log(data.user);
+                navigate('/login');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        
         setEmail('');
         setPassword('');
         setFirstName('');
@@ -58,14 +76,14 @@ function UserSignup() {
         />
         <h3 className="font-semibold text-lg mb-3">Enter Password</h3>
         <input 
-        required 
+        required  
         className="text-base mb-5 bg-[#eeee] w-full p-2 rounded border" 
         type="password" 
         placeholder="password"
         value={password}
         onChange={(e)=>setPassword(e.target.value)}
         />
-        <button className="bg-black text-white w-full p-2 font-medium rounded">Log In</button>
+        <button className="bg-black text-white w-full p-2 font-medium rounded">Create account</button>
         </form>
         <p className="mt-1 text-center font-semibold"> Already have an account? <Link to='/login' className="text-blue-600">Login here</Link></p>
         </div>
