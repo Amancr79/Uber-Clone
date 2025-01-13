@@ -1,7 +1,6 @@
 const captainModel=require('../Models/captain.model');
 const { validationResult, cookie }=require('express-validator');
 const captainServices = require('../services/captain.services');
-const userModel = require('../Models/user.model');
 const blacklistSchema = require('../Models/blacklistToken.model');
 
 module.exports.registerCaptain = async(req,res,next)=>{
@@ -50,7 +49,7 @@ module.exports.loginCaptain= async(req,res,next)=>{
         }
         const token=captain.generateAuthToken();
         res.cookie('token',token);
-        res.status(200).json({message:"Login Successfull",token,captain});
+        res.status(201).json({message:"Login Successfull",token,captain});
     }catch (error) {
       res.status(500).json({message:"Internal server error"});   
     }
@@ -58,12 +57,12 @@ module.exports.loginCaptain= async(req,res,next)=>{
 
 module.exports.captainProfile=async(req,res,next)=>{
     if(res.captain){
-        res.status(200).json({captain : req.captain});
+        res.status(201).json({captain : req.captain});
     }
 }
 module.exports.logoutCaptain=async(req,res,next)=>{
     const token=req.cookies.token || req.headers.authorization?.split(' ')[1];
     res.clearCookie(token);
     await blacklistSchema.create({token});
-    res.status(200).json({message:"Logout Successfully"});
+    res.status(201).json({message:"Logout Successfully"});
 }
