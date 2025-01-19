@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
+import {axios} from 'axios'
 import LocationSearchPanel from "../components/LocationSearchPanel";
 import VehiclePanel from "../components/VehiclePanel";
 import ConfirmedVehicle from "../components/ConfirmedVehicle";
@@ -12,13 +13,16 @@ const UserHome = () => {
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
   const [openPanel, setOpenPanel] = useState(false);
-  const panelRef = useRef(null);
-  const panelCLoseRef = useRef(null);
-  const vehiclePanelref = useRef(null);
   const [vehiclePanel, setVehiclePanel] = useState(false);
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [lookingForDriverPanel, setLookingForDriverPanel] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+  const [pickupSuggestions,setPickupSuggestions]=useState("");
+  const [destinationSuggestions,setDestinationSuggestions]=useState("");
+  const [activeField,setActiveField]=useState('');
+  const panelRef = useRef(null);
+  const panelCLoseRef = useRef(null);
+  const vehiclePanelref = useRef(null);
   const confirmRideRef = useRef(null);
   const waitingForDriverRef = useRef(null);
   const lookingForRideRef = useRef(null);
@@ -26,6 +30,36 @@ const UserHome = () => {
     e.preventDefault();
   };
 
+  const handlePickup=async(e)=>{
+    setPickup(e.target.value)
+     try{
+        const response=await axios.get('https://localhost:3000/maps/get-suggestions',{params:{
+          input:e.target.value
+        },
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem('token')}`
+        }
+      });
+        setPickupSuggestions(response.data);
+     }catch{
+        console.log('error in pickup suggestions');
+     }
+  }
+  const handleDestination=async(e)=>{
+     setDestination(e.target.value)
+     try{
+        const response=await axios.get('https://localhost:3000/maps/get-suggestions',{params:{
+          input:e.target.value
+        },
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem('token')}`
+        }
+      });
+       setDestinationSuggestions(response.data);
+     }catch{
+        console.log('error in destination suggestions');
+     }
+  }
   useGSAP(
     function () {
       if (openPanel) {
@@ -125,7 +159,7 @@ const UserHome = () => {
           <h5
             ref={panelCLoseRef}
             onClick={() => {
-              setOpenPanel(false);
+              setOpenPanel(false)
             }}
             className="absolute opacity-0 top-3 right-3 text-2xl"
           >
@@ -144,10 +178,11 @@ const UserHome = () => {
               placeholder="Enter pickup point"
               value={pickup}
               onChange={(e) => {
-                setPickup(e.target.value);
+                handlePickup(e)
               }}
               onClick={() => {
-                setOpenPanel(true);
+                setOpenPanel(true),
+                setActiveField('pickup')
               }}
             />
             <input
@@ -156,18 +191,23 @@ const UserHome = () => {
               placeholder="Enter destination point"
               value={destination}
               onChange={(e) => {
-                setDestination(e.target.value);
+                handleDestination(e)
               }}
               onClick={() => {
-                setOpenPanel(true);
+                setOpenPanel(true),
+                setActiveField('destination')
               }}
             />
           </form>
         </div>
         <div ref={panelRef} className="bg-white h-0">
           <LocationSearchPanel
+            suggestions={activeField ==='pickup'?pickupSuggestions:destinationSuggestions}
             setOpenPanel={setOpenPanel}
             setVehiclePanel={setVehiclePanel}
+            setPickup={setPickup}
+            setDestination={setDestination}
+            activeField={activeField}
           />
         </div>
       </div>

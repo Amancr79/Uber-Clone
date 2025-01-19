@@ -10,21 +10,19 @@ const CaptainProtectWrapper=({ children }) =>{
   const { captain, setCaptain } = useContext(CaptainDataContext);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect( () => {
     if (!token) {
       navigate("/captain-login");
     }
-  console.log(token);
-
+    console.log(token);
   axios
     .get("http://localhost:3000/captains/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
-      },
+      }
     })
     .then((response) => {
-      console.log(response.status);
-      if (response.status === 200) {
+      if (response.status === 201) {
         setCaptain(response.data.captain);
         setIsLoading(false);
       }
@@ -36,7 +34,7 @@ const CaptainProtectWrapper=({ children }) =>{
     })
 },[token]);
   console.log(isLoading);
-  if (isLoading) {
+  if (!isLoading) {
     return <div>loading .....</div>;
   }
   return <div>{children}</div>;

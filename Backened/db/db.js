@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 
-const DB_Url=process.env.DB_Url;
+const DB_Url=process.env.DB_URL;
 
 function connectToDb(){
     mongoose.connect(DB_Url).then(()=>{
